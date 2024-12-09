@@ -8,7 +8,11 @@ const convertCurrency = async (req, res) => {
 
         // Validate input
         if (!amount || !fromCurrency || !toCurrency) {
+<<<<<<< HEAD
             return res.status(400).json({ error: "All fields are required." });
+=======
+            return res.status(400).json({ error: "All fields a are required." });
+>>>>>>> 82b1c42c6d3de83f684494be48102ba38005790e
         }
 
         // Fetch exchange rates
