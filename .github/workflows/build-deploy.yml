@@ -25,7 +25,7 @@ jobs:
         ssh -o StrictHostKeyChecking=no -i private_key.pem ${USER_NAME}@${HOSTNAME} '
           #Now we have got the access of EC2 and we will start the deploy .
           cd ~/app &&
-          git pull -origin main
-	        docker-compose down
-	        docker-compose up --build
+          git pull origin main &&
+          docker-compose down &&
+          docker-compose up --build
         '
