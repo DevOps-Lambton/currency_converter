@@ -6,7 +6,7 @@ const convertCurrency = async (req, res) => {
         const { amount, fromCurrency, toCurrency } = req.body;
 
         if (!amount || !fromCurrency || !toCurrency) {
-            return res.status(400).json({ error: "All fields are required." });
+            return res.status(400).json({ error: "All fields are must required." });
         }
 
         const response = await axios.get(`${config.currencyApiUrl}/${fromCurrency}`);
