@@ -1,0 +1,43 @@
+name: Deploy to EC2 with Git
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the repository code
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Set up SSH
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.EC2_KEY }}
+
+    # SSH into EC2 and pull the latest code
+    - name: Pull latest code on EC2
+      uses: appleboy/ssh-action@v0.1.6
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        script: |
+          cd ~/app  # Navigate to the project directory
+          git reset --hard
+          git pull origin main
+
+    # Deploy using Docker Compose
+    - name: Deploy with Docker Compose
+      uses: appleboy/ssh-action@v0.1.6
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        script: |
+          cd ~/app
+          docker-compose down
+          docker-compose up -d --build
