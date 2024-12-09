@@ -1,6 +1,6 @@
 # currency_converter
 This repository contains a Currency Converter Application, a full-stack project built with:
-Backend: Java EE and Node.js/Express API
+Backend: Node.js/Express API
 Frontend: React with CSS
 The application allows users to convert currencies dynamically using the latest exchange rates.
 
