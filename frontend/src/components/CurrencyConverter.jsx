@@ -127,7 +127,7 @@ const CurrencyConverter = () => {
 
   return (
     <div className="container mt-5">
-      <h1 className="text-center mb-4 text-danger">meet</h1>
+      <h1 className="text-center mb-4 text-primary">Currency Converter</h1>
       <div className="card shadow-lg p-4">
         {/* Amount Input */}
         <Grid container spacing={3} justifyContent="center">
