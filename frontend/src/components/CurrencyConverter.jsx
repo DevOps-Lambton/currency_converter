@@ -9,10 +9,10 @@ import {
   InputLabel,
   InputAdornment,
   TextField,
+  Grid,
 } from "@mui/material";
 import Flag from "react-world-flags"; // Import flag for currency
 import "bootstrap/dist/css/bootstrap.min.css"; // Ensure Bootstrap is included
-import Grid2 from "@mui/material/Grid2"; // Import Grid2
 
 const CurrencyConverter = () => {
   const [amount, setAmount] = useState("");
@@ -56,9 +56,8 @@ const CurrencyConverter = () => {
         return "Swedish Krona";
       case "ZAR":
         return "South African Rand";
-      // Add more currencies as needed
       default:
-        return currencyCode; // Fallback for unknown currencies
+        return currencyCode;
     }
   };
 
@@ -111,8 +110,8 @@ const CurrencyConverter = () => {
       <h1 className="text-center mb-4 text-primary">Currency Converter</h1>
       <div className="card shadow-lg p-4">
         {/* Amount Input */}
-        <Grid2 container spacing={3} justifyContent="center">
-          <Grid2 item xs={6} sm={6}>
+        <Grid container spacing={3} justifyContent="center">
+          <Grid item xs={6} sm={6}>
             <TextField
               label="Amount"
               variant="outlined"
@@ -126,11 +125,11 @@ const CurrencyConverter = () => {
                 ),
               }}
             />
-          </Grid2>
-        </Grid2>
+          </Grid>
+        </Grid>
 
         {/* Currency Dropdowns and Swap Button */}
-        <Grid2
+        <Grid
           container
           spacing={3}
           alignItems="center"
@@ -138,7 +137,7 @@ const CurrencyConverter = () => {
           style={{ marginTop: "20px" }}
         >
           {/* From Currency */}
-          <Grid2 item xs={3} display="flex" justifyContent="flex-start">
+          <Grid item xs={3} display="flex" justifyContent="flex-start">
             <FormControl fullWidth variant="outlined">
               <InputLabel>From Currency</InputLabel>
               <Select
@@ -212,10 +211,10 @@ const CurrencyConverter = () => {
                 </MenuItem>
               </Select>
             </FormControl>
-          </Grid2>
+          </Grid>
 
           {/* Swap Button */}
-          <Grid2 item xs={2} textAlign="center">
+          <Grid item xs={2} textAlign="center">
             <Button
               variant="outlined"
               color="primary"
@@ -225,10 +224,10 @@ const CurrencyConverter = () => {
             >
               <FaExchangeAlt style={{ fontSize: "1.5rem" }} />
             </Button>
-          </Grid2>
+          </Grid>
 
           {/* To Currency */}
-          <Grid2 item xs={3} display="flex" justifyContent="flex-end">
+          <Grid item xs={3} display="flex" justifyContent="flex-end">
             <FormControl fullWidth variant="outlined">
               <InputLabel>To Currency</InputLabel>
               <Select
@@ -302,35 +301,37 @@ const CurrencyConverter = () => {
                 </MenuItem>
               </Select>
             </FormControl>
-          </Grid2>
-        </Grid2>
+          </Grid>
+        </Grid>
 
         {/* Convert Button */}
-        <div className="d-grid gap-2">
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
-            fullWidth
-            onClick={handleConvert}
-          >
-            Convert
-          </Button>
-        </div>
+        <Button
+          variant="contained"
+          color="success"
+          fullWidth
+          size="large"
+          onClick={handleConvert}
+          style={{ marginTop: "20px", padding: "15px" }}
+        >
+          Convert
+        </Button>
 
-        {/* Conversion Result */}
-        {convertedAmount !== null && (
-          <div className="mt-4 text-center">
-            <h3>
-              {amount} {fromCurrency} = {convertedAmount} {toCurrency}
-            </h3>
+        {/* Display Converted Amount */}
+        {convertedAmount && (
+          <div className="alert alert-success mt-4">
+            <strong>
+              {amount} {fromCurrency} ({getCurrencyName(fromCurrency)}) ={" "}
+              <span style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
+                {convertedAmount} {toCurrency} - {getCurrencyName(toCurrency)}
+              </span>{" "}
+            </strong>
           </div>
         )}
 
-        {/* Error Message */}
+        {/* Display Error */}
         {error && (
-          <div className="mt-3 text-center text-danger">
-            <p>{error}</p>
+          <div className="alert alert-danger mt-4">
+            <strong>Error:</strong> {error}
           </div>
         )}
       </div>
