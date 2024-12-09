@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FaExchangeAlt } from "react-icons/fa";
 import {
@@ -20,53 +20,46 @@ const CurrencyConverter = () => {
   const [toCurrency, setToCurrency] = useState("CAD");
   const [convertedAmount, setConvertedAmount] = useState(null);
   const [error, setError] = useState(null);
+  const [hasInteracted, setHasInteracted] = useState(false); // Track user interaction
+  const [loading, setLoading] = useState(false); // Track loading state
+
+  // List of supported currencies
+  const currencies = [
+    { code: "USD", flag: "US", name: "US Dollar" },
+    { code: "EUR", flag: "EU", name: "Euro" },
+    { code: "CAD", flag: "CA", name: "Canadian Dollar" },
+    { code: "GBP", flag: "GB", name: "British Pound" },
+    { code: "AUD", flag: "AU", name: "Australian Dollar" },
+    { code: "JPY", flag: "JP", name: "Japanese Yen" },
+    { code: "INR", flag: "IN", name: "Indian Rupee" },
+    { code: "CNY", flag: "CN", name: "Chinese Yuan" },
+    { code: "CHF", flag: "CH", name: "Swiss Franc" },
+    { code: "MXN", flag: "MX", name: "Mexican Peso" },
+    { code: "NZD", flag: "NZ", name: "New Zealand Dollar" },
+    { code: "SGD", flag: "SG", name: "Singapore Dollar" },
+    { code: "HKD", flag: "HK", name: "Hong Kong Dollar" },
+    { code: "NOK", flag: "NO", name: "Norwegian Krone" },
+    { code: "SEK", flag: "SE", name: "Swedish Krona" },
+    { code: "ZAR", flag: "ZA", name: "South African Rand" },
+  ];
 
   // Helper function to get the full currency name
   const getCurrencyName = (currencyCode) => {
-    switch (currencyCode) {
-      case "USD":
-        return "US Dollar";
-      case "EUR":
-        return "Euro";
-      case "CAD":
-        return "Canadian Dollar";
-      case "GBP":
-        return "British Pound";
-      case "AUD":
-        return "Australian Dollar";
-      case "JPY":
-        return "Japanese Yen";
-      case "INR":
-        return "Indian Rupee";
-      case "CNY":
-        return "Chinese Yuan";
-      case "CHF":
-        return "Swiss Franc";
-      case "MXN":
-        return "Mexican Peso";
-      case "NZD":
-        return "New Zealand Dollar";
-      case "SGD":
-        return "Singapore Dollar";
-      case "HKD":
-        return "Hong Kong Dollar";
-      case "NOK":
-        return "Norwegian Krone";
-      case "SEK":
-        return "Swedish Krona";
-      case "ZAR":
-        return "South African Rand";
-      default:
-        return currencyCode;
-    }
+    const currency = currencies.find((c) => c.code === currencyCode);
+    return currency ? currency.name : currencyCode;
   };
 
   // Handle currency conversion
   const handleConvert = async () => {
+    if (!amount || amount <= 0) {
+      setError("Please enter a valid amount.");
+      return;
+    }
     try {
       setError(null);
+      setLoading(true);
       const response = await axios.post(
-        `${process.env.REACT_APP_BASE_URL}/currency/convert`,
+        "http://localhost:5000/api/currency/convert",
         {
           amount,
           fromCurrency,
@@ -74,8 +67,11 @@ const CurrencyConverter = () => {
         }
       );
       setConvertedAmount(response.data.convertedAmount);
+      setHasInteracted(true); // Set interacted state to true
     } catch (err) {
       setError(err.response?.data?.error || "Something went wrong!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -83,13 +79,14 @@ const CurrencyConverter = () => {
   const handleSwap = async () => {
     try {
       setError(null);
+      setLoading(true);
       const temp = fromCurrency;
       setFromCurrency(toCurrency);
       setToCurrency(temp);
 
       if (amount) {
         const response = await axios.post(
-          `${process.env.REACT_APP_BASE_URL}/currency/convert`,
+          "http://localhost:5000/api/currency/convert",
           {
             amount,
             fromCurrency: toCurrency,
@@ -97,12 +94,35 @@ const CurrencyConverter = () => {
           }
         );
         setConvertedAmount(response.data.convertedAmount);
+        setHasInteracted(true); // Set interacted state to true
       }
     } catch (err) {
       setError(
         err.response?.data?.error || "Something went wrong during the swap!"
       );
+    } finally {
+      setLoading(false);
     }
+  };
+
+  // Automatically convert when amount, fromCurrency, or toCurrency changes after user has interacted
+  useEffect(() => {
+    if (hasInteracted && amount && fromCurrency && toCurrency) {
+      handleConvert();
+    }
+  }, [amount, fromCurrency, toCurrency, hasInteracted]);
+
+  // Render currency options
+  const renderCurrencyOptions = (currencies) => {
+    return currencies.map((currency) => (
+      <MenuItem key={currency.code} value={currency.code}>
+        <Flag
+          code={currency.flag}
+          style={{ width: "20px", marginRight: "8px" }}
+        />
+        {currency.code} - {currency.name}
+      </MenuItem>
+    ));
   };
 
   return (
@@ -145,70 +165,7 @@ const CurrencyConverter = () => {
                 onChange={(e) => setFromCurrency(e.target.value)}
                 label="From Currency"
               >
-                <MenuItem value="USD">
-                  <Flag code="US" style={{ width: 20, marginRight: 8 }} />
-                  USD - US Dollar
-                </MenuItem>
-                <MenuItem value="EUR">
-                  <Flag code="EU" style={{ width: 20, marginRight: 8 }} />
-                  EUR - Euro
-                </MenuItem>
-                <MenuItem value="CAD">
-                  <Flag code="CA" style={{ width: 20, marginRight: 8 }} />
-                  CAD - Canadian Dollar
-                </MenuItem>
-                <MenuItem value="GBP">
-                  <Flag code="GB" style={{ width: 20, marginRight: 8 }} />
-                  GBP - British Pound
-                </MenuItem>
-                <MenuItem value="AUD">
-                  <Flag code="AU" style={{ width: 20, marginRight: 8 }} />
-                  AUD - Australian Dollar
-                </MenuItem>
-                <MenuItem value="JPY">
-                  <Flag code="JP" style={{ width: 20, marginRight: 8 }} />
-                  JPY - Japanese Yen
-                </MenuItem>
-                <MenuItem value="INR">
-                  <Flag code="IN" style={{ width: 20, marginRight: 8 }} />
-                  INR - Indian Rupee
-                </MenuItem>
-                <MenuItem value="CNY">
-                  <Flag code="CN" style={{ width: 20, marginRight: 8 }} />
-                  CNY - Chinese Yuan
-                </MenuItem>
-                <MenuItem value="CHF">
-                  <Flag code="CH" style={{ width: 20, marginRight: 8 }} />
-                  CHF - Swiss Franc
-                </MenuItem>
-                <MenuItem value="MXN">
-                  <Flag code="MX" style={{ width: 20, marginRight: 8 }} />
-                  MXN - Mexican Peso
-                </MenuItem>
-                <MenuItem value="NZD">
-                  <Flag code="NZ" style={{ width: 20, marginRight: 8 }} />
-                  NZD - New Zealand Dollar
-                </MenuItem>
-                <MenuItem value="SGD">
-                  <Flag code="SG" style={{ width: 20, marginRight: 8 }} />
-                  SGD - Singapore Dollar
-                </MenuItem>
-                <MenuItem value="HKD">
-                  <Flag code="HK" style={{ width: 20, marginRight: 8 }} />
-                  HKD - Hong Kong Dollar
-                </MenuItem>
-                <MenuItem value="NOK">
-                  <Flag code="NO" style={{ width: 20, marginRight: 8 }} />
-                  NOK - Norwegian Krone
-                </MenuItem>
-                <MenuItem value="SEK">
-                  <Flag code="SE" style={{ width: 20, marginRight: 8 }} />
-                  SEK - Swedish Krona
-                </MenuItem>
-                <MenuItem value="ZAR">
-                  <Flag code="ZA" style={{ width: 20, marginRight: 8 }} />
-                  ZAR - South African Rand
-                </MenuItem>
+                {renderCurrencyOptions(currencies)}
               </Select>
             </FormControl>
           </Grid>
@@ -235,70 +192,7 @@ const CurrencyConverter = () => {
                 onChange={(e) => setToCurrency(e.target.value)}
                 label="To Currency"
               >
-                <MenuItem value="USD">
-                  <Flag code="US" style={{ width: 20, marginRight: 8 }} />
-                  USD - US Dollar
-                </MenuItem>
-                <MenuItem value="EUR">
-                  <Flag code="EU" style={{ width: 20, marginRight: 8 }} />
-                  EUR - Euro
-                </MenuItem>
-                <MenuItem value="CAD">
-                  <Flag code="CA" style={{ width: 20, marginRight: 8 }} />
-                  CAD - Canadian Dollar
-                </MenuItem>
-                <MenuItem value="GBP">
-                  <Flag code="GB" style={{ width: 20, marginRight: 8 }} />
-                  GBP - British Pound
-                </MenuItem>
-                <MenuItem value="AUD">
-                  <Flag code="AU" style={{ width: 20, marginRight: 8 }} />
-                  AUD - Australian Dollar
-                </MenuItem>
-                <MenuItem value="JPY">
-                  <Flag code="JP" style={{ width: 20, marginRight: 8 }} />
-                  JPY - Japanese Yen
-                </MenuItem>
-                <MenuItem value="INR">
-                  <Flag code="IN" style={{ width: 20, marginRight: 8 }} />
-                  INR - Indian Rupee
-                </MenuItem>
-                <MenuItem value="CNY">
-                  <Flag code="CN" style={{ width: 20, marginRight: 8 }} />
-                  CNY - Chinese Yuan
-                </MenuItem>
-                <MenuItem value="CHF">
-                  <Flag code="CH" style={{ width: 20, marginRight: 8 }} />
-                  CHF - Swiss Franc
-                </MenuItem>
-                <MenuItem value="MXN">
-                  <Flag code="MX" style={{ width: 20, marginRight: 8 }} />
-                  MXN - Mexican Peso
-                </MenuItem>
-                <MenuItem value="NZD">
-                  <Flag code="NZ" style={{ width: 20, marginRight: 8 }} />
-                  NZD - New Zealand Dollar
-                </MenuItem>
-                <MenuItem value="SGD">
-                  <Flag code="SG" style={{ width: 20, marginRight: 8 }} />
-                  SGD - Singapore Dollar
-                </MenuItem>
-                <MenuItem value="HKD">
-                  <Flag code="HK" style={{ width: 20, marginRight: 8 }} />
-                  HKD - Hong Kong Dollar
-                </MenuItem>
-                <MenuItem value="NOK">
-                  <Flag code="NO" style={{ width: 20, marginRight: 8 }} />
-                  NOK - Norwegian Krone
-                </MenuItem>
-                <MenuItem value="SEK">
-                  <Flag code="SE" style={{ width: 20, marginRight: 8 }} />
-                  SEK - Swedish Krona
-                </MenuItem>
-                <MenuItem value="ZAR">
-                  <Flag code="ZA" style={{ width: 20, marginRight: 8 }} />
-                  ZAR - South African Rand
-                </MenuItem>
+                {renderCurrencyOptions(currencies)}
               </Select>
             </FormControl>
           </Grid>
@@ -315,6 +209,9 @@ const CurrencyConverter = () => {
         >
           Convert
         </Button>
+
+        {/* Loading Indicator */}
+        {loading && <div>Loading...</div>}
 
         {/* Display Converted Amount */}
         {convertedAmount && (
