@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 import React, { useState } from "react";
 import axios from "axios";
 import { FaExchangeAlt } from "react-icons/fa";
@@ -342,4 +340,3 @@ const CurrencyConverter = () => {
 };
 
 export default CurrencyConverter;
->>>>>>> b8230fd35eded6c67b8154ca28434f02c54be1d3
