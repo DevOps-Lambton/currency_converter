@@ -68,7 +68,7 @@ const CurrencyConverter = () => {
     try {
       setError(null);
       const response = await axios.post(
-        "http://localhost:5000/api/currency/convert",
+        `${process.env.REACT_APP_BASE_URL}/currency/convert`,
         {
           amount,
           fromCurrency,
@@ -91,7 +91,7 @@ const CurrencyConverter = () => {
 
       if (amount) {
         const response = await axios.post(
-          "http://localhost:5000/api/currency/convert",
+          `${process.env.REACT_APP_BASE_URL}/currency/convert`,
           {
             amount,
             fromCurrency: toCurrency,

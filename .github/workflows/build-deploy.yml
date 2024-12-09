@@ -1,0 +1,32 @@
+name: Deploy to EC2 with Git
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the repository code
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Deploy in EC2
+      env:
+        PRIVATE_KEY: ${{ secrets.EC2_KEY  }}
+        HOSTNAME : ${{ secrets.EC2_HOST  }}
+        USER_NAME : ${{ secrets.EC2_USER  }}
+
+      run: |
+        echo "$PRIVATE_KEY" > private_key.pem && chmod 600 private_key.pem
+        ssh -o StrictHostKeyChecking=no -i private_key.pem ${USER_NAME}@${HOSTNAME} '
+          #Now we have got the access of EC2 and we will start the deploy .
+          cd ~/app &&
+          git pull origin main &&
+          docker-compose down &&
+          docker-compose build --no-cache
+          docker-compose up -d
+        '
